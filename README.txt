@@ -15,7 +15,10 @@ NARMAX_SISO.M : non linear ARX model identification
 Documentation :
 REDUCTION DE MODELES.PDF
 
-A test code is proposed with COMPARAISON_REDUCTION_METHODS.M that is related to heat conduction in a wall model coded in TUTORIAL.M
+A test code is proposed with :
+
+COMPARAISON_REDUCTION_METHODS.M that is related to model reduction for heat conduction in a wall model coded in TUTORIAL.M
+TEST_NARMAX.M that evaluate NARMAX system identification with optimal choice for model orders
 
 Additional functions :
 D2C_ZOH.M : discrete to continuous model
@@ -25,6 +28,7 @@ SIMULATION_REDUCED_MODEL.M : time simulation using ODE solvers
 CUSTOM_LYAP.M : solve the Lyapunov equations
 CUSTOM_KRON.M : make Kronoker matrices
 MY_SS.M : create a SYS state-space model
+COMPUTE_RMSE : compute the square root of the norm2 of the error
 
 Jean-Luc Battaglia
 University of Bordeaux
