@@ -5,7 +5,7 @@ Nx = 100;         % nombre de points en espace
 k = 10;           % conductivité thermique [W/m.K]
 rho_cp = 1.0e5;   % capacité thermique volumique [J/m3.K]
 %
-r = 20;            % ordre de réduction
+r = 20;           % ordre de réduction
 m = 4*r;
 %
 [A,B,C,D] = tutorial(L, Nx,k,rho_cp);
@@ -59,7 +59,7 @@ y_r_2 = (Cr * z_sol')' + Dr * u_fun(t_sol_2)' ;
 % --- Affichage
 figure(1), plot(t_sol_2, y_r_2, 's', 'LineWidth',1.5)
 y_r_2 = interp1(t_sol_2,y_r_2,t_sol_0);
-figure(2), plot(t_sol_0, y_sol_0-y_r_2, 'o', 'LineWidth',1.5)
+figure(2), plot(t_sol_0, y_sol_0-y_r_2, 's', 'LineWidth',1.5)
 hold on
 %% réduction équilibrée
 dt = 0.01;
@@ -75,10 +75,42 @@ tspan = [0 10];
 % --- Sortie réduite
 y_r_3 = (Cr * z_sol')' + Dr * u_fun(t_sol_3)' ;    
 % --- Affichage
-figure(1), plot(t_sol_3, y_r_3, 'o', 'LineWidth',1.5)
-legend('Model Complet (100)', 'réduction MODALE (20)', 'Réduction POD (20)','Réduction Equilibrée (4)')
+figure(1), plot(t_sol_3, y_r_3, '+', 'LineWidth',1.5)
 grid on
 y_r_3 = interp1(t_sol_3,y_r_3,t_sol_0);
-figure(2), plot(t_sol_0, y_sol_0-y_r_3, 'o', 'LineWidth',1.5)
-legend('réduction MODALE (20)', 'réduction POD (20)','réduction équilibrée (4)')
+figure(2), plot(t_sol_0, y_sol_0-y_r_3, '+', 'LineWidth',1.5)
+
+%% réduction par identification de sous-espace
+dt = 0.01;
+T = 10;
+N = round(T / dt);
+N = max(1, N);         % sécurité minimale
+N = floor(N(1));       % forcer scalaire entier
+r = 2;
+[Ar, Br, Cr, Dr] = subspace_model_reduction(A, B, C, D, r, N, dt);
+
+x0 = zeros(r,1);
+u_fun = @(t) 100; % flux constant    
+
+[t_sol_4, y_r_4, x_sim] = simulate_discrete_model(Ar, Br, Cr, Dr, u_fun, dt, N, x0);
+
+y_r_4 = interp1(t_sol_4,y_r_4,t_sol_0);
+
+
+% --- Simulation du système réduit avec ode45
+% u_fun = @(t) 100; % flux constant    
+% odefun_r = @(t,z) Ar*z + Br*u_fun(t);
+% z0 = zeros(r,1);
+% tspan = [0 10];
+% [t_sol_4, z_sol] = ode45(odefun_r, tspan, z0);
+% % --- Sortie réduite
+% y_r_4 = (Cr * z_sol')' + Dr * u_fun(t_sol_4)' ;    
+% --- Affichage
+figure(1), plot(t_sol_0, y_r_4, 'd', 'LineWidth',1.5)
+legend('Model Complet (100)', 'réduction MODALE (20)', 'Réduction POD (20)',...
+    'Réduction Equilibrée (4)', 'Identification par sous-espace (4)')
+grid on
+figure(2), plot(t_sol_0, y_sol_0-y_r_4, 'd', 'LineWidth',1.5)
+legend('réduction MODALE (20)', 'réduction POD (20)','réduction équilibrée (4)',...
+    'Identification par sous-espace (4)')
 grid on
